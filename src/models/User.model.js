@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
 
-const uniqueValidator = require("mongoose-unique-validator");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -26,22 +25,27 @@ var userSchema = new Schema(
       type: String,
       required: [true, "La contraseña es obligatoria"],
     },
+    roles: [
+      {
+        ref: "Role",
+        type: Schema.Types.ObjectId,
+      },
+    ],
   },
   {
     timestamps: true,
+    versionKey: false,
   }
 );
 
-userSchema.plugin(uniqueValidator, {
-  message: "El {PATH} ya existe con otro usuario",
-});
+userSchema.statics.encryptPassword = async (password) => {
+  const salt = await bcrypt.genSalt(saltRounds);
+  return await bcrypt.hash(password, salt);
+};
 
-userSchema.pre("save", function (next) {
-  if (this.isModified("password")) {
-    this.password = bcrypt.hashSync(this.password, saltRounds);
-  }
-  next();
-});
+userSchema.statics.comparePassword = async (password, receivedPassword) => {
+  return await bcrypt.compareSync(password, receivedPassword);
+};
 
 //Export the model
 module.exports = model("User", userSchema);

@@ -3,8 +3,13 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
 require("dotenv").config();
+
+const { createRoles } = require("./libs/initialSetup");
+
 const usersRouter = require("./routes/user.router");
 const app = express();
+
+createRoles();
 
 require("./config/database");
 // Middlewares

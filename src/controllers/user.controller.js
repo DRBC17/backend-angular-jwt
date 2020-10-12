@@ -1,4 +1,5 @@
 const User = require("../models/User.model");
+const Role = require("../models/Role.model");
 const pkg = require("../../package.json");
 
 const jwt = require("jsonwebtoken");
@@ -19,12 +20,23 @@ exports.apiDescription = (req, res, next) => {
 };
 
 exports.signup = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, roles } = req.body;
   try {
-    const newUser = new User({ email, password });
-    await newUser.save();
+    const newUser = new User({
+      email,
+      password: await User.encryptPassword(password),
+    });
 
-    const token = jwt.sign({ _id: newUser.id }, process.env.SECRET_KEY, {
+    if (roles) {
+      const foundRoles = await Role.find({ name: { $in: roles } });
+      newUser.roles = foundRoles.map((role) => role.id);
+    } else {
+      const role = await Role.findOne({ name: "user" });
+      newUser.roles = [role.id];
+    }
+
+    const saveUser = await newUser.save();
+    const token = jwt.sign({ _id: saveUser.id }, process.env.SECRET_KEY, {
       expiresIn: "7d",
     });
     res.status(200).json({ token });
@@ -36,18 +48,24 @@ exports.signup = async (req, res, next) => {
 exports.signin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(401).send("The email doesn't exists");
+    const userFound = await User.findOne({ email }).populate("roles");
+    // console.log(userFound);
 
-    if (bcrypt.compareSync(password, user.password)) {
-      const token = jwt.sign({ _id: user.id }, process.env.SECRET_KEY, {
-        expiresIn: "7d",
-      });
+    if (!userFound) return res.status(400).json({ message: "User not found" });
 
-      res.status(200).json({ token });
-    } else {
-      return res.status(401).send("Wrong Password");
-    }
+    const matchPassword = await User.comparePassword(
+      password,
+      userFound.password
+    );
+
+    if (!matchPassword)
+      return res.status(401).json({ token: null, message: "Invalid password" });
+
+    const token = jwt.sign({ _id: userFound.id }, process.env.SECRET_KEY, {
+      expiresIn: "7d",
+    });
+
+    res.status(200).json({ token });
   } catch (error) {
     res.json(error);
   }
