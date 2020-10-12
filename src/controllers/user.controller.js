@@ -2,6 +2,7 @@ const User = require("../models/User.model");
 const pkg = require("../../package.json");
 
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 exports.apiDescription = (req, res, next) => {
   try {
@@ -37,14 +38,18 @@ exports.signin = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(401).send("The email doesn't exists");
-    if (user.password !== password)
-      return res.status(401).send("Wrong Password");
 
-    const token = jwt.sign({ _id: user.id }, process.env.SECRET_KEY, {
-      expiresIn: "7d",
-    });
-    res.status(200).json({ token });
+    if (bcrypt.compareSync(password, user.password)) {
+      const token = jwt.sign({ _id: user.id }, process.env.SECRET_KEY, {
+        expiresIn: "7d",
+      });
+
+      res.status(200).json({ token });
+    } else {
+      return res.status(401).send("Wrong Password");
+    }
   } catch (error) {
+    console.log("golarr");
     res.json(error);
   }
 };
