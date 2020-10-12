@@ -1,4 +1,13 @@
 const { verifyToken, isAdmin, isModerator } = require("./authJwt");
-const { checkRolesExisted,checkDuplicateUserOrEmail } = require("./verifySignUp");
+const {
+  checkRolesExisted,
+  checkDuplicateUserOrEmail,
+} = require("./verifySignUp");
 
-module.exports = { verifyToken, isAdmin, isModerator, checkRolesExisted,checkDuplicateUserOrEmail };
+module.exports = {
+  verifyToken,
+  isAdmin,
+  isModerator,
+  checkRolesExisted,
+  checkDuplicateUserOrEmail,
+};

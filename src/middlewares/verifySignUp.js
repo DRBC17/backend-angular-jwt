@@ -6,7 +6,7 @@ exports.checkRolesExisted = (req, res, next) => {
   const { roles } = req.body;
   if (roles) {
     for (let index = 0; index < roles.length; index++) {
-        console.log(rolesArray);
+      console.log(rolesArray);
       if (!rolesArray.includes(roles[index])) {
         return res
           .status(401)

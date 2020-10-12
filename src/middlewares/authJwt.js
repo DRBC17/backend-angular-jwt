@@ -33,23 +33,21 @@ exports.isAdmin = async (req, res, next) => {
       next();
       return;
     }
-    
   }
 
   return res.status(401).json({ message: "Require Admin role" });
 };
 
 exports.isModerator = async (req, res, next) => {
-    const userFound = await User.findById(req.userId);
-    const roles = await Role.find({ _id: { $in: userFound.roles } });
-  
-    for (let index = 0; index < roles.length; index++) {
-      if (roles[index].name === "moderator") {
-        next();
-        return;
-      }
-      
+  const userFound = await User.findById(req.userId);
+  const roles = await Role.find({ _id: { $in: userFound.roles } });
+
+  for (let index = 0; index < roles.length; index++) {
+    if (roles[index].name === "moderator") {
+      next();
+      return;
     }
-  
-    return res.status(401).json({ message: "Require Moderator role" });
+  }
+
+  return res.status(401).json({ message: "Require Moderator role" });
 };

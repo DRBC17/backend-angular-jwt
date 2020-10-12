@@ -15,6 +15,5 @@ var roleSchema = new Schema(
   }
 );
 
-
 //Export the model
 module.exports = model("Role", roleSchema);
