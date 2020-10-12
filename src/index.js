@@ -1,11 +1,18 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+const morgan = require("morgan");
 require("dotenv").config();
 const usersRouter = require("./routes/user.router");
 const app = express();
 
 require("./config/database");
-
+// Middlewares
+const corsOptions = {
+  // origin: "http://localhost:3000",
+};
+app.use(cors(corsOptions));
+app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
