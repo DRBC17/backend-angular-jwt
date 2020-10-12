@@ -49,7 +49,6 @@ exports.signin = async (req, res, next) => {
       return res.status(401).send("Wrong Password");
     }
   } catch (error) {
-    console.log("golarr");
     res.json(error);
   }
 };

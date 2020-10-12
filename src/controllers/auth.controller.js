@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 
 exports.verifyToken = (req, res, next) => {
-  console.log("header: ", req.headers);
   if (!req.headers.authorization) {
     return res.status(401).send("Unauthorized request");
   }
